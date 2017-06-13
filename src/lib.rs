@@ -24,8 +24,11 @@ impl<I> Iterator for TimedIterator<I>
 {
     type Item = I::Item;
     fn next(&mut self) -> Option<Self::Item> {
-        let remaining = self.duration - self.last_call.elapsed();
-        sleep(remaining);
+        let remaining = self.duration.checked_sub(self.last_call.elapsed());
+        if let Some( dur ) = remaining {
+            sleep(dur);
+        }
+        
         self.last_call = Instant::now();
         self.inner.next()
     }
